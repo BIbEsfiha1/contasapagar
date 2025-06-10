@@ -1,0 +1,4 @@
+[
+  {"id": 1, "fornecedor": "Fornecedor A", "valor": 150.5, "vencimento": "2025-06-15", "status": "pendente"},
+  {"id": 2, "fornecedor": "Fornecedor B", "valor": 200.0, "vencimento": "2025-06-20", "status": "pago"}
+]
