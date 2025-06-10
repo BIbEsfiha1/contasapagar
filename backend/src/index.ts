@@ -78,14 +78,18 @@ app.delete('/api/boletos/:id', async (req: Request<{ id: string }>, res: Respons
 });
 
 app.get('/api/resumo', (_req, res) => {
-  const pendente = boletos.filter(b => b.status === 'pendente').length;
-  const pago = boletos.filter(b => b.status === 'pago').length;
+  const pendentes = boletos.filter(b => b.status === 'pendente');
+  const pagos = boletos.filter(b => b.status === 'pago');
+  const pendente = pendentes.length;
+  const pago = pagos.length;
+  const totalPendente = pendentes.reduce((acc, b) => acc + b.valor, 0);
+  const totalPago = pagos.reduce((acc, b) => acc + b.valor, 0);
   const totalMes: Record<string, number> = {};
   boletos.forEach(b => {
     const mes = b.vencimento.slice(0, 7);
     totalMes[mes] = (totalMes[mes] || 0) + b.valor;
   });
-  res.json({ pendente, pago, totalMes });
+  res.json({ pendente, pago, totalPendente, totalPago, totalMes });
 });
 
 const PORT = process.env.PORT || 3001;

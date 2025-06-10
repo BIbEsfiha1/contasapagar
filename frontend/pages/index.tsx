@@ -25,7 +25,7 @@ interface Boleto {
 
 export default function Home() {
   const [boletos, setBoletos] = React.useState<Boleto[]>([]);
-  const [novo, setNovo] = React.useState({ fornecedor: '', valor: '', vencimento: '' });
+  const [novo, setNovo] = React.useState({ fornecedor: '', valor: '', vencimento: '', status: 'pendente' });
   const [resumo, setResumo] = React.useState<{ pendente: number; pago: number; totalMes: Record<string, number> }>({ pendente: 0, pago: 0, totalMes: {} });
 
   const columns: GridColDef[] = [
@@ -33,7 +33,7 @@ export default function Home() {
     { field: 'fornecedor', headerName: 'Fornecedor', flex: 1, editable: true },
     { field: 'valor', headerName: 'Valor', width: 120, editable: true, type: 'number' },
     { field: 'vencimento', headerName: 'Vencimento', width: 140, editable: true },
-    { field: 'status', headerName: 'Status', width: 110, editable: true },
+    { field: 'status', headerName: 'Status', width: 110, editable: true, type: 'singleSelect', valueOptions: ['pendente', 'pago'] },
     {
       field: 'actions',
       headerName: 'Ações',
@@ -66,9 +66,9 @@ export default function Home() {
     await fetch('http://localhost:3001/api/boletos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...novo, status: 'pendente' })
+      body: JSON.stringify(novo)
     });
-    setNovo({ fornecedor: '', valor: '', vencimento: '' });
+    setNovo({ fornecedor: '', valor: '', vencimento: '', status: 'pendente' });
     carregar();
     carregarResumo();
   };
@@ -113,6 +113,10 @@ export default function Home() {
         <TextField label="Fornecedor" value={novo.fornecedor} onChange={e => setNovo({ ...novo, fornecedor: e.target.value })} />
         <TextField label="Valor" type="number" value={novo.valor} onChange={e => setNovo({ ...novo, valor: e.target.value })} />
         <TextField label="Vencimento" type="date" InputLabelProps={{ shrink: true }} value={novo.vencimento} onChange={e => setNovo({ ...novo, vencimento: e.target.value })} />
+        <TextField select label="Status" value={novo.status} onChange={e => setNovo({ ...novo, status: e.target.value })} SelectProps={{ native: true }}>
+          <option value="pendente">pendente</option>
+          <option value="pago">pago</option>
+        </TextField>
         <Button variant="contained" onClick={adicionar}>Adicionar</Button>
       </div>
 
