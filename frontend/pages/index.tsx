@@ -1,5 +1,6 @@
 import React from "react";
 import Head from 'next/head';
+import Link from 'next/link';
 import { Container, Typography, TextField, Button, Box } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Bar, Pie } from 'react-chartjs-2';
@@ -27,7 +28,7 @@ interface Boleto {
 export default function Home() {
   const [boletos, setBoletos] = React.useState<Boleto[]>([]);
   const [novo, setNovo] = React.useState({ fornecedor: '', valor: '', vencimento: '', status: 'pendente' });
-  const [resumo, setResumo] = React.useState<{ pendente: number; pago: number; totalMes: Record<string, number> }>({ pendente: 0, pago: 0, totalMes: {} });
+  const [resumo, setResumo] = React.useState<{ pendente: number; pago: number; totalMes: Record<string, number>; totalPendente: number; totalPago: number }>({ pendente: 0, pago: 0, totalMes: {}, totalPendente: 0, totalPago: 0 });
   const [porFornecedor, setPorFornecedor] = React.useState<Record<string, number>>({});
 
   const columns: GridColDef[] = [
@@ -57,7 +58,13 @@ export default function Home() {
     fetch('http://localhost:3001/api/resumo')
       .then(res => res.json())
       .then(data => {
-        setResumo({ pendente: data.pendente, pago: data.pago, totalMes: data.totalMes });
+        setResumo({
+          pendente: data.pendente,
+          pago: data.pago,
+          totalMes: data.totalMes,
+          totalPendente: data.totalPendente,
+          totalPago: data.totalPago
+        });
         setPorFornecedor(data.totalFornecedor);
       });
   };
@@ -104,7 +111,10 @@ export default function Home() {
       <Typography variant="h4" gutterBottom>Boletos</Typography>
 
       <Box mb={2}>
-        <Typography>Boletos pendentes: {resumo.pendente} | pagos: {resumo.pago}</Typography>
+        <Typography>
+          Boletos pendentes: {resumo.pendente} (R$ {resumo.totalPendente}) |
+          pagos: {resumo.pago} (R$ {resumo.totalPago})
+        </Typography>
       </Box>
 
       <Box mb={2} maxWidth={600}>
@@ -119,6 +129,14 @@ export default function Home() {
           labels: Object.keys(porFornecedor),
           datasets: [{ label: 'Por fornecedor', data: Object.values(porFornecedor), backgroundColor: ['#3f51b5','#f50057','#4caf50','#ff9800'] }]
         }} />
+      </Box>
+
+      <Box mb={2}>
+        {Object.keys(porFornecedor).map(nome => (
+          <Link key={nome} href={`/fornecedor/${encodeURIComponent(nome)}`} passHref>
+            <Button sx={{ mr: 1, mb: 1 }} variant="outlined">{nome}</Button>
+          </Link>
+        ))}
       </Box>
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>

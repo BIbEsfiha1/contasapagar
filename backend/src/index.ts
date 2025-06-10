@@ -104,6 +104,23 @@ app.get('/api/resumo', (_req, res) => {
   res.json({ pendente, pago, totalPendente, totalPago, totalMes, totalFornecedor });
 });
 
+app.get('/api/fornecedores', (_req, res) => {
+  const fornecedores = Array.from(new Set(boletos.map(b => b.fornecedor)));
+  res.json(fornecedores);
+});
+
+app.get('/api/boletos/fornecedor/:nome', (req, res) => {
+  const nome = decodeURIComponent(req.params.nome).toLowerCase();
+  const status = req.query.status as string | undefined;
+  let lista = boletos.filter(
+    b => b.fornecedor.toLowerCase() === nome
+  );
+  if (status === 'pago' || status === 'pendente') {
+    lista = lista.filter(b => b.status === status);
+  }
+  res.json(lista);
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
