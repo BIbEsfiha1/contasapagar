@@ -16,6 +16,6 @@ O objetivo é demonstrar a arquitetura básica, agora com uma API simples de cad
 3. Na pasta `frontend`, execute `npm run dev` para iniciar a interface web em `localhost:3000`.
 
  Você poderá cadastrar, listar, editar e remover boletos diretamente pelo painel. Os dados são salvos em `backend/data/boletos.json`.
- Há também uma rota `GET /api/resumo` que retorna quantos boletos estão pendentes ou pagos, o valor total de cada status e o total por mês.
+ A API oferece a rota `GET /api/boletos/:id` para consultar boletos individuais e `GET /api/resumo` que informa quantos boletos estão pendentes ou pagos, o valor total de cada status, o total por mês e o total por fornecedor.
 
 Este projeto continua sendo um exemplo simples e pode ser expandido conforme a necessidade.

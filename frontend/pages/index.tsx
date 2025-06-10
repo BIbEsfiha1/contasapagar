@@ -2,18 +2,19 @@ import React from "react";
 import Head from 'next/head';
 import { Container, Typography, TextField, Button, Box } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
 } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 interface Boleto {
   id: number;
@@ -27,6 +28,7 @@ export default function Home() {
   const [boletos, setBoletos] = React.useState<Boleto[]>([]);
   const [novo, setNovo] = React.useState({ fornecedor: '', valor: '', vencimento: '', status: 'pendente' });
   const [resumo, setResumo] = React.useState<{ pendente: number; pago: number; totalMes: Record<string, number> }>({ pendente: 0, pago: 0, totalMes: {} });
+  const [porFornecedor, setPorFornecedor] = React.useState<Record<string, number>>({});
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
@@ -54,7 +56,10 @@ export default function Home() {
   const carregarResumo = () => {
     fetch('http://localhost:3001/api/resumo')
       .then(res => res.json())
-      .then(data => setResumo(data));
+      .then(data => {
+        setResumo({ pendente: data.pendente, pago: data.pago, totalMes: data.totalMes });
+        setPorFornecedor(data.totalFornecedor);
+      });
   };
 
   React.useEffect(() => {
@@ -106,6 +111,13 @@ export default function Home() {
         <Bar data={{
           labels: Object.keys(resumo.totalMes),
           datasets: [{ label: 'Valor por mês', data: Object.values(resumo.totalMes), backgroundColor: 'rgba(75,192,192,0.5)' }]
+        }} />
+      </Box>
+
+      <Box mb={2} maxWidth={600}>
+        <Pie data={{
+          labels: Object.keys(porFornecedor),
+          datasets: [{ label: 'Por fornecedor', data: Object.values(porFornecedor), backgroundColor: ['#3f51b5','#f50057','#4caf50','#ff9800'] }]
         }} />
       </Box>
 

@@ -40,6 +40,16 @@ app.get('/api/boletos', (_req, res) => {
   res.json(boletos);
 });
 
+app.get('/api/boletos/:id', (req: Request<{ id: string }>, res) => {
+  const id = Number(req.params.id);
+  const boleto = boletos.find(b => b.id === id);
+  if (!boleto) {
+    res.status(404).end();
+    return;
+  }
+  res.json(boleto);
+});
+
 app.post('/api/boletos', async (req: Request, res: Response) => {
   const { fornecedor, valor, vencimento, status } = req.body;
   const novo: Boleto = {
@@ -85,11 +95,13 @@ app.get('/api/resumo', (_req, res) => {
   const totalPendente = pendentes.reduce((acc, b) => acc + b.valor, 0);
   const totalPago = pagos.reduce((acc, b) => acc + b.valor, 0);
   const totalMes: Record<string, number> = {};
+  const totalFornecedor: Record<string, number> = {};
   boletos.forEach(b => {
     const mes = b.vencimento.slice(0, 7);
     totalMes[mes] = (totalMes[mes] || 0) + b.valor;
+    totalFornecedor[b.fornecedor] = (totalFornecedor[b.fornecedor] || 0) + b.valor;
   });
-  res.json({ pendente, pago, totalPendente, totalPago, totalMes });
+  res.json({ pendente, pago, totalPendente, totalPago, totalMes, totalFornecedor });
 });
 
 const PORT = process.env.PORT || 3001;
